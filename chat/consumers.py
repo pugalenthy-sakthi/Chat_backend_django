@@ -37,11 +37,14 @@ class MyConsumer(AsyncWebsocketConsumer):
         pass
 
     async def receive(self, text_data):
+        
+        message_data = json.loads(text_data)
+        await sync_to_async(self.save_message)(message_data)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type':'chat_message',
-                'data':text_data
+                'data':message_data['message']
             }
             
         )
@@ -65,3 +68,18 @@ class MyConsumer(AsyncWebsocketConsumer):
                     chatactivity.user_2.set([user2])
                     chatactivity.save()
         return chatactivity
+    
+    def save_message(self,data):
+        query = self.scope.get('query_string')
+        query = parse_qs(query.decode('utf-8'))
+        user1_email = query.get('user')[0]
+        user2_email = query.get('to')[0]
+        chat = Chats()
+        chat.save()
+        user1 = Users.objects.filter(email  = user1_email).first()
+        user2 = Users.objects.filter(email  = user2_email).first()
+        chat.sent_by.set([user1])
+        chat.sent_to.set([user2])
+        chat.message = data['message']
+        chat.save()
+        

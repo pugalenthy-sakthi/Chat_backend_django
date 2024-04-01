@@ -7,7 +7,6 @@ class Chats(Base):
   sent_by = models.ManyToManyField(Users, related_name='sended_messages')
   sent_to = models.ManyToManyField(Users, related_name='recieved_message')
   message = models.TextField()
-  is_read = models.BooleanField(default = False)
   sent_time = models.DateTimeField(auto_now_add = True)
   
   
