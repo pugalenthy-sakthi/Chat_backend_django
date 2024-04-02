@@ -1,0 +1,28 @@
+version: '3.2'
+
+services:
+  db:
+    image: mysql
+    container_name: mysql_db
+    environment:
+      MYSQL_DATABASE: django_chat
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: my_secure_password
+      MYSQL_HOST : localhost
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  web:
+    build: .
+    container_name: django_chat
+    network_mode : "host"
+    command: sh -c 'python manage.py makemigrations && python manage.py migrate && python manage.py runserver'
+
+
+volumes:
+    db:
+      driver : local
+
+    
